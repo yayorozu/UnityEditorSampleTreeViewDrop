@@ -4,15 +4,12 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 
-public class TestTreeView : TreeView
+public class SampleTreeView : TreeView
 {
-	private TreeViewEditorWindow _window;
 	private static readonly string DataKey = "TestTreeView";
 
-	public TestTreeView(TreeViewEditorWindow window, TreeViewState state) : base(state)
+	public SampleTreeView(TreeViewState state) : base(state)
 	{
-		_window = window;
-		showBorder = true;
 		showAlternatingRowBackgrounds = true;
 		Reload();
 	}
@@ -20,14 +17,14 @@ public class TestTreeView : TreeView
 	protected override TreeViewItem BuildRoot()
 	{
 		var root = new TreeViewItem {id = -1, depth = -1};
-
 		SampleItemData.SetChild(root);
-
 		SetupDepthsFromParentsAndChildren(root);
-
 		return root;
 	}
 
+	/// <summary>
+	/// 複数選択を許容するか
+	/// </summary>
 	protected override bool CanMultiSelect(TreeViewItem item) => false;
 
 	/// <summary>
@@ -58,6 +55,7 @@ public class TestTreeView : TreeView
 			return;
 
 		DragAndDrop.PrepareStartDrag();
+		// ドラッグデータに登録
 		DragAndDrop.SetGenericData(DataKey, dragObjects);
 		DragAndDrop.StartDrag(dragObjects.Length > 1 ? "<Multiple>" : dragObjects[0].displayName);
 	}
@@ -73,32 +71,35 @@ public class TestTreeView : TreeView
 			var data =  DragAndDrop.GetGenericData(DataKey);
 			var items = data as TreeViewItem[];
 
+			// ドロップアイテムチェック
 			if (items == null || items.Length <= 0)
 				return DragAndDropVisualMode.None;
 
 			var item = items.First();
 			switch (args.dragAndDropPosition)
 			{
+				// 親となるアイテムにドロップ
 				case DragAndDropPosition.UponItem:
 					SampleItemData.ChangeParent(item.id, args.parentItem.id);
 					SetSelection(new List<int>{item.id});
 					Reload();
 					break;
+				// アイテムの間にドロップ
 				case DragAndDropPosition.BetweenItems:
 					SampleItemData.ChangeParent(item.id, args.parentItem.id, args.insertAtIndex);
 					SetSelection(new List<int>{item.id});
 					Reload();
 					break;
-
+				// アイテム外にドロップ
 				case DragAndDropPosition.OutsideItems:
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
 		}
+		// ドラッグ中の処理
 		else if (isDragging)
 		{
-			// ドラッグ中の処理
 		}
 
 		return DragAndDropVisualMode.Move;

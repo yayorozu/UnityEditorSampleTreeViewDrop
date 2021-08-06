@@ -2,23 +2,23 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-public class TreeViewEditorWindow : EditorWindow
+public class SampleTreeViewEditorWindow : EditorWindow
 {
 	[SerializeField]
 	private TreeViewState _state;
-	private TestTreeView _treeView;
+	private SampleTreeView _treeView;
 
 	[MenuItem("TreeView Examples/Item Drop")]
 	static void ShowWindow()
 	{
-		var window = GetWindow<TreeViewEditorWindow>("TreeView Item Drop");
+		var window = GetWindow<SampleTreeViewEditorWindow>("TreeView Item Drop");
 		window.Show();
 	}
 
 	private void OnEnable()
 	{
 		_state ??= new TreeViewState();
-		_treeView = new TestTreeView(this, _state);
+		_treeView = new SampleTreeView(_state);
 	}
 
 	private void OnGUI()
